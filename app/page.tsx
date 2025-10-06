@@ -1,103 +1,96 @@
-import Image from "next/image";
+import Cards from "@/component/landingPage/cards";
+import MostRecent from "@/component/landingPage/mostRecentCard";
+import RecentCard from "@/component/landingPage/recentCard";
+import { client } from "@/lib/sanity";
 
-export default function Home() {
+const query = `*[_type == "blog"]{
+
+  _id,
+  _createdAt,
+  title,
+  slug,
+  author,
+  smallDescription,
+  category,
+  titleImage{
+    asset->{
+      url,
+      metadata { lqip }
+    }
+  },
+  content
+} | order(_createdAt desc)`;
+export default async function HomePage() {
+  const blogs = await client.fetch(query);
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="md:w-[80%]  m-auto">
+      <div className="m-auto px-5 mt-3 md:mt-6">
+        <h1 className="text-4xl font-bold text-primary ">Latest</h1>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3  [grid-template-rows:repeat(5,150px)] lg:[grid-template-rows:repeat(3,160px)] mt-4   gap-2 px-3 lg:gap-1.5 m-auto">
+        <div className="col-span-1 lg:col-span-2 lg:row-span-3  row-span-2 mb-6 lg:mb-0">
+          <MostRecent
+            title={blogs[0].title}
+            createdAt={blogs[0]._createdAt}
+            image={blogs[0].titleImage?.asset?.url}
+            category={blogs[0].category}
+            smallDescription={blogs[0].smallDescription}
+            author={blogs[0].author}
+            slug={blogs[0].slug.current}
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+        <RecentCard
+          index={1}
+          title={blogs[1].title}
+          createdAt={blogs[1]._createdAt}
+          image={blogs[1].titleImage?.asset?.url}
+          category={blogs[1].category}
+          smallDescription={blogs[1].smallDescription}
+          author={blogs[1].author}
+          slug={blogs[1].slug.current}
+        />
+        <RecentCard
+          index={2}
+          title={blogs[2].title}
+          createdAt={blogs[2]._createdAt}
+          image={blogs[2].titleImage?.asset?.url}
+          category={blogs[2].category}
+          smallDescription={blogs[2].smallDescription}
+          author={blogs[2].author}
+          slug={blogs[2].slug.current}
+        />
+        <RecentCard
+          index={3}
+          title={blogs[3].title}
+          createdAt={blogs[3]._createdAt}
+          image={blogs[3].titleImage?.asset?.url}
+          category={blogs[3].category}
+          smallDescription={blogs[3].smallDescription}
+          author={blogs[3].author}
+          slug={blogs[3].slug.current}
+        />
+      </div>
+      <div className="w-full relative m-auto text-xl font-semibold tracking-widest mt-20 px-2 lg:mt-32  flex items-center justify-start ">
+        <div className="w-full z-0 h-0.5 bg-foreground absolute rounded" />
+        <h1 className=" bg-background  z-10 absolute left-10 m-auto text-xl font-semibold tracking-widest px-5 justify-self-start text-primary">
+          ALL &nbsp; BLOGS
+        </h1>
+      </div>
+      <div className="space-y-6 grid grid-cols-2 px-2 lg:grid-cols-4 md:grid-cols-3 gap-5  m-auto mt-10">
+        {blogs.slice(4).map((blog: any) => (
+          <Cards
+            slug={blog.slug.current}
+            category={blog.category}
+            smallDescription={blog.smallDescription}
+            key={blog._id}
+            title={blog.title}
+            createdAt={blog._createdAt}
+            image={blog.titleImage?.asset?.url}
+            author={blog.author}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        ))}
+      </div>
     </div>
   );
 }
