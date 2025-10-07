@@ -1,61 +1,65 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { loginAction, registerAction } from '@/lib/actions'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { useState } from "react";
+import { loginAction, registerAction } from "@/lib/actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function LoginPage() {
-  const [isLogin, setIsLogin] = useState(true)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (formData: FormData) => {
-    setIsLoading(true)
-    setError('')
-    
+    setIsLoading(true);
+    setError("");
+
     try {
-      const result = isLogin 
+      const result = isLogin
         ? await loginAction(formData)
-        : await registerAction(formData)
-      
+        : await registerAction(formData);
+
       if (result?.error) {
-        setError(result.error)
+        setError(result.error);
       }
     } catch (error) {
-      setError('An unexpected error occurred')
+      console.log(error);
+      setError("An unexpected error occurred");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
-            {isLogin ? 'Sign in to your account' : 'Create your account'}
+            {isLogin ? "Sign in to your account" : "Create your account"}
           </h2>
           <p className="mt-2 text-center text-sm text-muted-foreground">
-            {isLogin ? "Don't have an account? " : 'Already have an account? '}
+            {isLogin ? "Don't have an account? " : "Already have an account? "}
             <button
               type="button"
               className="font-medium text-primary hover:text-primary/80"
               onClick={() => {
-                setIsLogin(!isLogin)
-                setError('')
+                setIsLogin(!isLogin);
+                setError("");
               }}
             >
-              {isLogin ? 'Sign up' : 'Sign in'}
+              {isLogin ? "Sign up" : "Sign in"}
             </button>
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" action={handleSubmit}>
           <div className="space-y-4">
             {!isLogin && (
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-foreground">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-foreground"
+                >
                   Full Name
                 </label>
                 <Input
@@ -68,9 +72,12 @@ export default function LoginPage() {
                 />
               </div>
             )}
-            
+
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-foreground">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-foreground"
+              >
                 Email Address
               </label>
               <Input
@@ -82,9 +89,12 @@ export default function LoginPage() {
                 placeholder="Enter your email"
               />
             </div>
-            
+
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-foreground">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-foreground"
+              >
                 Password
               </label>
               <Input
@@ -105,16 +115,12 @@ export default function LoginPage() {
           )}
 
           <div>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Loading...' : (isLogin ? 'Sign In' : 'Sign Up')}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}
             </Button>
           </div>
         </form>
       </div>
     </div>
-  )
+  );
 }

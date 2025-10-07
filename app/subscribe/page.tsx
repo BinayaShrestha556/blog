@@ -5,7 +5,6 @@ import Link from "next/link";
 import React from "react";
 
 const page = () => {
-  const [email, setEmail] = React.useState("");
   return (
     <div className="h-[80dvh] w-full flex flex-col justify-center items-center gap-4 lg:gap-5">
       <h1 className="text-3xl px-2 text-center font-bold">

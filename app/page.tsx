@@ -80,10 +80,10 @@ export default async function HomePage() {
       <div className="space-y-6 grid grid-cols-2 px-2 lg:grid-cols-4 md:grid-cols-3 gap-5  m-auto mt-10">
         {blogs.slice(4).map((blog: any) => (
           <Cards
+            key={blog._id}
             slug={blog.slug.current}
             category={blog.category}
             smallDescription={blog.smallDescription}
-            key={blog._id}
             title={blog.title}
             createdAt={blog._createdAt}
             image={blog.titleImage?.asset?.url}
