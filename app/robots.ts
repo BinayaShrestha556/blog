@@ -10,3 +10,5 @@ export default function robots(): MetadataRoute.Robots {
     sitemap: 'https://blog.binayashrestha0.com.np/sitemap.xml',
   }
 }
+
+
