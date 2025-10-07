@@ -1,6 +1,7 @@
 // app/blog/[slug]/page.tsx
 import { client } from "@/lib/sanity";
 import { PortableText, PortableTextComponents } from "@portabletext/react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import Image from "next/image";
 import { urlFor } from "@/lib/sanityUrl";
 import { FaRegComment, FaRegHeart } from "react-icons/fa";
@@ -9,6 +10,7 @@ import { RiShareForwardLine } from "react-icons/ri";
 import { MdOutlineBookmarkAdd } from "react-icons/md";
 import type { PortableTextBlock } from "@portabletext/types";
 import type { Metadata } from "next";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 // Types
 interface BlogPost {
@@ -68,15 +70,15 @@ const components: PortableTextComponents = {
         />
       </div>
     ),
+  },
 
-    // 🧩 Code block renderer
-    code: ({ value }: { value: { language?: string; code: string } }) => (
-      <pre className="bg-gray-900 text-gray-100 rounded-xl p-4 my-6 overflow-x-auto">
-        <code className={`language-${value.language || "javascript"}`}>
-          {value.code}
-        </code>
-      </pre>
+  marks: {
+    code: ({ children }) => (
+      <code className="bg-gray-300 text-gray-900 rounded px-1 py-0.5">
+        {children}
+      </code>
     ),
+    strong: ({ children }) => <strong>{children}</strong>,
   },
 
   block: {
@@ -91,6 +93,16 @@ const components: PortableTextComponents = {
     ),
     normal: ({ children }: PortableTextComponentProps) => (
       <p className="leading-relaxed">{children}</p>
+    ),
+
+    code: ({ children }: { children?: React.ReactNode }) => (
+      <SyntaxHighlighter
+        language="javascript"
+        style={oneDark}
+        className="rounded-xl my-6"
+      >
+        {children?.toString() || ""}
+      </SyntaxHighlighter>
     ),
   },
 
@@ -113,7 +125,7 @@ const components: PortableTextComponents = {
   },
 };
 
-export const revalidate = 60;
+// export const revalidate = 60;
 
 // Generate metadata for each blog post
 export async function generateMetadata({
