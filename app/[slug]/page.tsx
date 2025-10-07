@@ -8,6 +8,7 @@ import { IoEyeOutline } from "react-icons/io5";
 import { RiShareForwardLine } from "react-icons/ri";
 import { MdOutlineBookmarkAdd } from "react-icons/md";
 import type { PortableTextBlock } from "@portabletext/types";
+import type { Metadata } from "next";
 
 // Types
 interface BlogPost {
@@ -21,6 +22,10 @@ interface BlogPost {
   _createdAt: string;
   category: string;
   author: string;
+  smallDescription?: string;
+  slug: {
+    current: string;
+  };
 }
 
 interface ImageValue {
@@ -45,7 +50,9 @@ const query = `*[_type == "blog" && slug.current == $slug][0]{
   content,
   _createdAt,
   category,
-  author
+  author,
+  smallDescription,
+  slug
 }`;
 
 const components: PortableTextComponents = {
@@ -96,6 +103,66 @@ const components: PortableTextComponents = {
 
 export const revalidate = 60;
 
+// Generate metadata for each blog post
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const blog = await client.fetch<BlogPost>(query, { slug });
+
+  if (!blog) {
+    return {
+      title: "Blog Post Not Found",
+      description: "The requested blog post could not be found.",
+    };
+  }
+
+  const publishedDate = new Date(blog._createdAt).toISOString();
+  const modifiedDate = new Date().toISOString();
+
+  return {
+    title: blog.title,
+    description: blog.smallDescription || `Read ${blog.title} by ${blog.author} on Binaya Shrestha's blog. Discover insights about ${blog.category.toLowerCase()} and more.`,
+    keywords: [
+      blog.category.toLowerCase(),
+      blog.title.toLowerCase(),
+      "blog",
+      "technology",
+      "web development",
+      "programming",
+      "tutorial",
+      "binaya shrestha"
+    ],
+    authors: [{ name: blog.author }],
+    openGraph: {
+      title: blog.title,
+      description: blog.smallDescription || `Read ${blog.title} by ${blog.author} on Binaya Shrestha's blog.`,
+      url: `https://blog.binayashrestha0.com.np/${slug}`,
+      type: "article",
+      publishedTime: publishedDate,
+      modifiedTime: modifiedDate,
+      authors: [blog.author],
+      section: blog.category,
+      tags: [blog.category.toLowerCase()],
+      images: [
+        {
+          url: blog.titleImage.asset.url,
+          width: 1200,
+          height: 630,
+          alt: blog.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: blog.title,
+      description: blog.smallDescription || `Read ${blog.title} by ${blog.author} on Binaya Shrestha's blog.`,
+      images: [blog.titleImage.asset.url],
+    },
+    alternates: {
+      canonical: `https://blog.binayashrestha0.com.np/${slug}`,
+    },
+  };
+}
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -107,9 +174,42 @@ export default async function BlogPage({ params }: PageProps) {
   if (!blog) return <p>Blog not found</p>;
 
   const formattedDate = new Date(blog._createdAt).toISOString().split("T")[0];
+  const publishedDate = new Date(blog._createdAt).toISOString();
+  const modifiedDate = new Date().toISOString();
+
+  // Structured data for SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: blog.title,
+    description: blog.smallDescription || `Read ${blog.title} by ${blog.author}`,
+    image: blog.titleImage.asset.url,
+    author: {
+      "@type": "Person",
+      name: blog.author,
+    },
+    publisher: {
+      "@type": "Person",
+      name: "Binaya Shrestha",
+    },
+    datePublished: publishedDate,
+    dateModified: modifiedDate,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://blog.binayashrestha0.com.np/${slug}`,
+    },
+    articleSection: blog.category,
+    keywords: [blog.category.toLowerCase(), blog.title.toLowerCase()],
+    url: `https://blog.binayashrestha0.com.np/${slug}`,
+  };
 
   return (
-    <article className="w-full md:w-[80%] lg:w-[60%] mx-auto p-2 md:p-5 mt-5">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <article className="w-full md:w-[80%] lg:w-[60%] mx-auto p-2 md:p-5 mt-5">
       <div className="relative mb-10 w-full">
         <Image
           src={blog.titleImage.asset.url}
@@ -157,6 +257,7 @@ export default async function BlogPage({ params }: PageProps) {
       </div>
 
       <PortableText value={blog.content} components={components} />
-    </article>
+      </article>
+    </>
   );
 }
