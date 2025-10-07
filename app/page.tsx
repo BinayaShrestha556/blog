@@ -1,3 +1,4 @@
+export const revalidate = 43200; // revalidate every 12 hours
 import Cards from "@/component/landingPage/cards";
 import MostRecent from "@/component/landingPage/mostRecentCard";
 import RecentCard from "@/component/landingPage/recentCard";
