@@ -3,6 +3,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { logoutAction } from "@/lib/actions";
+import Image from "next/image";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -22,9 +23,17 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="h-14 flex items-center justify-between mx-auto w-[95%] md:w-[80%] fixed border-b top-0 left-0 right-0 bg-background z-50">
+    <nav className="h-14 flex w-full items-center justify-between mx-auto px-5 md:w-[80%] fixed border-b top-0 left-0 right-0 bg-background z-50">
       {/* Logo */}
-      <div className="text-2xl font-bold tracking-tighter">{"<Binaya />"}</div>
+      <div className="text-2xl font-bold tracking-tighter relative">
+        <Image
+          alt="logo"
+          src="/binaya.logo.black.png"
+          width={50}
+          height={50}
+          objectFit="contain"
+        />
+      </div>
 
       {/* Desktop Navigation */}
       <div className="hidden md:flex items-center gap-8 lg:gap-20">
@@ -142,7 +151,9 @@ const Navbar = () => {
           {/* Auth Links */}
           <div className="pt-4 border-t border-border space-y-3">
             {loading ? (
-              <div className="text-base text-muted-foreground py-2 px-2">Loading...</div>
+              <div className="text-base text-muted-foreground py-2 px-2">
+                Loading...
+              </div>
             ) : user ? (
               <>
                 <div className="text-base text-muted-foreground py-2 px-2">
