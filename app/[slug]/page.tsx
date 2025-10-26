@@ -60,7 +60,7 @@ const query = `*[_type == "blog" && slug.current == $slug][0]{
 const components: PortableTextComponents = {
   types: {
     image: ({ value }: ImageComponentProps) => (
-      <div className="relative my-6 aspect-[4/3] md:aspect-[3/2] w-full md:w-5/6 mx-auto">
+      <div className="relative my-6 aspect-square md:aspect-square w-full md:w-5/6 mx-auto">
         <Image
           src={urlFor(value).url()}
           alt={value.alt || "Blog image"}
