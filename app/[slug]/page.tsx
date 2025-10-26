@@ -60,13 +60,12 @@ const query = `*[_type == "blog" && slug.current == $slug][0]{
 const components: PortableTextComponents = {
   types: {
     image: ({ value }: ImageComponentProps) => (
-      <div className="relative my-6">
+      <div className="relative my-6 aspect-[4/3] md:aspect-[3/2] w-full md:w-5/6 mx-auto">
         <Image
-          src={urlFor(value).width(800).height(600).url()}
+          src={urlFor(value).url()}
           alt={value.alt || "Blog image"}
-          width={800}
-          height={600}
-          className="rounded-2xl aspect-[4/3] md:aspect-[3/2] w-4/6 mx-auto my-14 object-cover"
+          fill
+          className="rounded-2xl object-contain"
         />
       </div>
     ),
