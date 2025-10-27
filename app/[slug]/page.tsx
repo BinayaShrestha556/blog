@@ -65,7 +65,7 @@ const components: PortableTextComponents = {
           src={urlFor(value).url()}
           alt={value.alt || "Blog image"}
           fill
-          className="rounded-2xl object-contain"
+          className="rounded-2xl object-cover"
         />
       </div>
     ),

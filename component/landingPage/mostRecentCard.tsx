@@ -26,8 +26,8 @@ const MostRecent: React.FC<CardsProps> = ({
         <Image
           src={image}
           alt={title}
-          width={800}
-          height={800}
+          width={1200}
+          height={1200}
           className="rounded-3xl w-full h-full object-cover"
         />
         <div className="absolute inset-0  bottom-0">
