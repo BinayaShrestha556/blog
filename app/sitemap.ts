@@ -4,11 +4,23 @@ import { client } from '@/lib/sanity'
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://blog.binayashrestha0.com.np'
   
-  // Fetch all blog posts
-  const blogs = await client.fetch(`*[_type == "blog"]{
-    slug,
-    _updatedAt
-  }`)
+  // Fetch all blog posts with more details for better sitemap
+  const blogs = await client.fetch(
+    `*[_type == "blog"]{
+      slug,
+      _updatedAt,
+      _createdAt,
+      title,
+      category
+    }`,
+    {},
+    {
+      next: { 
+        revalidate: 86400, // Cache sitemap data for 24 hours
+        tags: ['sitemap-blogs'] // Tag for targeted revalidation
+      }
+    }
+  )
 
   // Static pages
   const staticPages = [
@@ -32,13 +44,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // Dynamic blog pages
-  const blogPages = blogs.map((blog: any) => ({
-    url: `${baseUrl}/${blog.slug.current}`,
-    lastModified: new Date(blog._updatedAt),
-    changeFrequency: 'weekly' as const,
-    priority: 0.9,
-  }))
+  // Dynamic blog pages with better prioritization
+  const blogPages = blogs.map((blog: any) => {
+    const isRecent = new Date(blog._createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days
+    return {
+      url: `${baseUrl}/${blog.slug.current}`,
+      lastModified: new Date(blog._updatedAt),
+      changeFrequency: isRecent ? 'daily' as const : 'weekly' as const,
+      priority: isRecent ? 0.95 : 0.9,
+    };
+  })
 
   return [...staticPages, ...blogPages]
 }

@@ -124,7 +124,7 @@ const components: PortableTextComponents = {
   },
 };
 
-// export const revalidate = 60;
+export const revalidate = 86400; // revalidate every 24 hours
 
 // Generate metadata for each blog post
 export async function generateMetadata({
@@ -133,7 +133,18 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const blog = await client.fetch<BlogPost>(query, { slug });
+  
+  // Cache metadata generation as well
+  const blog = await client.fetch<BlogPost>(
+    query, 
+    { slug },
+    {
+      next: { 
+        revalidate: 86400, // Cache for 24 hours
+        tags: [`blog-${slug}`] // Tag for targeted revalidation
+      }
+    }
+  );
 
   if (!blog) {
     return {
@@ -146,7 +157,7 @@ export async function generateMetadata({
   const modifiedDate = new Date().toISOString();
 
   return {
-    title: blog.title,
+    title: `${blog.title} | Binaya Shrestha's Blog`,
     description:
       blog.smallDescription ||
       `Read ${blog.title} by ${blog.author} on Binaya Shrestha's blog. Discover insights about ${blog.category.toLowerCase()} and more.`,
@@ -159,10 +170,25 @@ export async function generateMetadata({
       "programming",
       "tutorial",
       "binaya shrestha",
+      "tech insights",
+      "coding",
+      "software development",
     ],
     authors: [{ name: blog.author }],
+    category: blog.category,
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
     openGraph: {
-      title: blog.title,
+      title: `${blog.title} | Binaya Shrestha's Blog`,
       description:
         blog.smallDescription ||
         `Read ${blog.title} by ${blog.author} on Binaya Shrestha's blog.`,
@@ -172,7 +198,9 @@ export async function generateMetadata({
       modifiedTime: modifiedDate,
       authors: [blog.author],
       section: blog.category,
-      tags: [blog.category.toLowerCase()],
+      tags: [blog.category.toLowerCase(), blog.title.toLowerCase()],
+      siteName: "Binaya Shrestha's Blog",
+      locale: "en_US",
       images: [
         {
           url: blog.titleImage.asset.url,
@@ -184,11 +212,13 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: blog.title,
+      title: `${blog.title} | Binaya Shrestha's Blog`,
       description:
         blog.smallDescription ||
         `Read ${blog.title} by ${blog.author} on Binaya Shrestha's blog.`,
       images: [blog.titleImage.asset.url],
+      creator: "@binayashrestha",
+      site: "@binayashrestha",
     },
     alternates: {
       canonical: `https://blog.binayashrestha0.com.np/${slug}`,
@@ -202,7 +232,18 @@ interface PageProps {
 
 export default async function BlogPage({ params }: PageProps) {
   const { slug } = await params;
-  const blog = await client.fetch<BlogPost>(query, { slug });
+  
+  // Use Next.js cache with 24-hour revalidation
+  const blog = await client.fetch<BlogPost>(
+    query, 
+    { slug },
+    {
+      next: { 
+        revalidate: 86400, // Cache for 24 hours
+        tags: [`blog-${slug}`] // Tag for targeted revalidation
+      }
+    }
+  );
 
   if (!blog) return <p>Blog not found</p>;
 
@@ -210,21 +251,28 @@ export default async function BlogPage({ params }: PageProps) {
   const publishedDate = new Date(blog._createdAt).toISOString();
   const modifiedDate = new Date().toISOString();
 
-  // Structured data for SEO
+  // Enhanced structured data for SEO
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: blog.title,
     description:
       blog.smallDescription || `Read ${blog.title} by ${blog.author}`,
-    image: blog.titleImage.asset.url,
+    image: {
+      "@type": "ImageObject",
+      url: blog.titleImage.asset.url,
+      width: 1200,
+      height: 630,
+    },
     author: {
       "@type": "Person",
       name: blog.author,
+      url: "https://blog.binayashrestha0.com.np/about",
     },
     publisher: {
       "@type": "Person",
       name: "Binaya Shrestha",
+      url: "https://blog.binayashrestha0.com.np",
     },
     datePublished: publishedDate,
     dateModified: modifiedDate,
@@ -233,8 +281,41 @@ export default async function BlogPage({ params }: PageProps) {
       "@id": `https://blog.binayashrestha0.com.np/${slug}`,
     },
     articleSection: blog.category,
-    keywords: [blog.category.toLowerCase(), blog.title.toLowerCase()],
+    keywords: [blog.category.toLowerCase(), blog.title.toLowerCase(), "technology", "web development", "programming"],
     url: `https://blog.binayashrestha0.com.np/${slug}`,
+    wordCount: blog.content?.length || 0,
+    inLanguage: "en-US",
+    isPartOf: {
+      "@type": "Blog",
+      name: "Binaya Shrestha's Blog",
+      url: "https://blog.binayashrestha0.com.np",
+    },
+  };
+
+  // Breadcrumb structured data
+  const breadcrumbStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://blog.binayashrestha0.com.np",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: blog.category,
+        item: `https://blog.binayashrestha0.com.np/category/${blog.category.toLowerCase()}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: blog.title,
+        item: `https://blog.binayashrestha0.com.np/${slug}`,
+      },
+    ],
   };
 
   return (
@@ -242,6 +323,10 @@ export default async function BlogPage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbStructuredData) }}
       />
       <article className="w-full md:w-[80%] lg:w-[60%] mx-auto p-2 md:p-5 mt-5">
         <div className="relative mb-10 w-full">

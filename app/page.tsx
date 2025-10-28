@@ -43,7 +43,13 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const blogs = await client.fetch(query);
+  // Cache homepage data for 12 hours
+  const blogs = await client.fetch(query, {}, {
+    next: { 
+      revalidate: 43200, // Cache for 12 hours
+      tags: ['homepage-blogs'] // Tag for targeted revalidation
+    }
+  });
 
   // Structured data for the website
   const websiteStructuredData = {

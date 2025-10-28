@@ -48,10 +48,10 @@ export const metadata: Metadata = {
     description: "Explore the latest in technology, web development, and programming insights on Binaya Shrestha's blog. Discover tutorials, tips, and industry trends.",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "https://blog.binayashrestha0.com.np/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Binaya Shrestha's Blog",
+        alt: "Binaya Shrestha's Blog - Tech Insights & Development",
       },
     ],
   },
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Binaya Shrestha's Blog - Tech Insights & Development",
     description: "Explore the latest in technology, web development, and programming insights on Binaya Shrestha's blog. Discover tutorials, tips, and industry trends.",
-    images: ["/og-image.jpg"],
+    images: ["https://blog.binayashrestha0.com.np/og-image.jpg"],
     creator: "@binayashrestha",
   },
   robots: {
@@ -73,9 +73,7 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  verification: {
-    google: "your-google-verification-code", // Replace with actual verification code
-  },
+
 };
 
 export default function RootLayout({
@@ -102,6 +100,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
         <meta name="theme-color" content="#000000" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="google-site-verification" content="0OtlH-EUHs1HU9PlByn6wRBSTywwaCoF3LBvqYnMFRw" />
       </head>
       <body className={`${rubik.className} antialiased`}>
         <AuthProvider>
