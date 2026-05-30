@@ -13,9 +13,10 @@ const rubik = Rubik({
 export const metadata: Metadata = {
   title: {
     default: "Binaya Shrestha's Blog - Tech Insights & Development",
-    template: "%s | Binaya Shrestha's Blog"
+    template: "%s | Binaya Shrestha's Blog",
   },
-  description: "Explore the latest in technology, web development, and programming insights on Binaya Shrestha's blog. Discover tutorials, tips, and industry trends.",
+  description:
+    "Explore the latest in technology, web development, and programming insights on Binaya Shrestha's blog. Discover tutorials, tips, and industry trends.",
   keywords: [
     "blog",
     "technology",
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
     "tech insights",
     "software development",
     "coding",
-    "binaya shrestha"
+    "binaya shrestha",
   ],
   authors: [{ name: "Binaya Shrestha" }],
   creator: "Binaya Shrestha",
@@ -45,7 +46,8 @@ export const metadata: Metadata = {
     url: "https://blog.binayashrestha0.com.np",
     siteName: "Binaya Shrestha's Blog",
     title: "Binaya Shrestha's Blog - Tech Insights & Development",
-    description: "Explore the latest in technology, web development, and programming insights on Binaya Shrestha's blog. Discover tutorials, tips, and industry trends.",
+    description:
+      "Explore the latest in technology, web development, and programming insights on Binaya Shrestha's blog. Discover tutorials, tips, and industry trends.",
     images: [
       {
         url: "https://blog.binayashrestha0.com.np/og-image.jpg",
@@ -58,7 +60,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Binaya Shrestha's Blog - Tech Insights & Development",
-    description: "Explore the latest in technology, web development, and programming insights on Binaya Shrestha's blog. Discover tutorials, tips, and industry trends.",
+    description:
+      "Explore the latest in technology, web development, and programming insights on Binaya Shrestha's blog. Discover tutorials, tips, and industry trends.",
     images: ["https://blog.binayashrestha0.com.np/og-image.jpg"],
     creator: "@binayashrestha",
   },
@@ -73,9 +76,6 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  verification: {
-    google: "0OtlH-EUHs1HU9PlByn6wRBSTywwaCoF3LBvqYnMFRw",
-  },
 };
 
 export default function RootLayout({
@@ -87,7 +87,10 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {/* Google tag (gtag.js) */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-B3TE7KLJT4"></script>
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-B3TE7KLJT4"
+        ></script>
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -101,7 +104,14 @@ export default function RootLayout({
         <link rel="preconnect" href="https://cdn.sanity.io" />
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
         <meta name="theme-color" content="#000000" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <meta
+          name="google-site-verification"
+          content="0OtlH-EUHs1HU9PlByn6wRBSTywwaCoF3LBvqYnMFRw"
+        />
       </head>
       <body className={`${rubik.className} antialiased`}>
         <AuthProvider>

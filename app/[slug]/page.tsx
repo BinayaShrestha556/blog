@@ -55,7 +55,9 @@ export async function generateMetadata({
   const modifiedDate = blog._updatedAt
     ? new Date(blog._updatedAt).toISOString()
     : publishedDate;
-  const imageUrl = blog.titleImage?.asset?.url || "https://blog.binayashrestha0.com.np/og-image.jpg";
+  const imageUrl =
+    blog.titleImage?.asset?.url ||
+    "https://blog.binayashrestha0.com.np/og-image.jpg";
 
   return {
     title: `${blog.title} | Binaya Shrestha's Blog`,

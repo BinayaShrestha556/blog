@@ -11,8 +11,10 @@ export const BlogJsonLd: React.FC<BlogJsonLdProps> = ({ blog, slug }) => {
   const modifiedDate = blog._updatedAt
     ? new Date(blog._updatedAt).toISOString()
     : publishedDate;
-  
-  const imageUrl = blog.titleImage?.asset?.url || "https://blog.binayashrestha0.com.np/og-image.jpg";
+
+  const imageUrl =
+    blog.titleImage?.asset?.url ||
+    "https://blog.binayashrestha0.com.np/og-image.jpg";
 
   // Calculate actual word count from PortableText content
   const calculateWordCount = (content: any[] = []) => {
@@ -24,7 +26,10 @@ export const BlogJsonLd: React.FC<BlogJsonLdProps> = ({ blog, slug }) => {
         });
       }
     });
-    return textString.trim().split(/\s+/).filter((word) => word.length > 0).length;
+    return textString
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
   };
 
   const trueWordCount = calculateWordCount(blog.content);
