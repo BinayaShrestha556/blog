@@ -26,9 +26,9 @@ const Cards: React.FC<CardsProps> = ({
         <Image
           src={image}
           alt={title}
-          width={300}
-          height={300}
-          className="rounded-xl aspect-[4/3] object-cover group"
+          width={500}
+          height={400}
+          className="rounded-xl aspect-[4/3] object-cover w-full transition-transform duration-300 group-hover:scale-[1.02]"
         />
         {smallDescription && (
           <div className="absolute inset-0 bg-black/45 z-40 text-white opacity-0 rounded-xl group-hover:opacity-100 transition duration-300fs ">

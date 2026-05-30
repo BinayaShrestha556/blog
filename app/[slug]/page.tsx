@@ -6,6 +6,7 @@ import { EngagementBar } from "@/component/blog/EngagementBar";
 import { PortableTextContent } from "@/component/blog/PortableTextContent";
 import { BlogJsonLd } from "@/component/blog/BlogJsonLd";
 import { BlogPost } from "@/lib/types";
+import Cards from "@/component/landingPage/cards";
 
 const query = `*[_type == "blog" && slug.current == $slug][0]{
   title,
@@ -150,24 +151,69 @@ export default async function BlogPage({ params }: PageProps) {
 
   if (!blog) return <p>Blog not found</p>;
 
+  // Fetch related posts (latest 4 posts excluding current one)
+  const relatedPosts = await client.fetch<BlogPost[]>(
+    `*[_type == "blog" && slug.current != $slug] | order(_createdAt desc) [0...4]{
+      _id,
+      title,
+      slug,
+      _createdAt,
+      category,
+      author,
+      smallDescription,
+      titleImage{asset->{url}}
+    }`,
+    { slug },
+    {
+      next: {
+        revalidate: 86400,
+        tags: ["related-blogs"],
+      },
+    },
+  );
+
   return (
     <>
       <BlogJsonLd blog={blog} slug={slug} />
-      <article className="w-full md:w-[80%] lg:w-[60%] mx-auto p-2 md:p-5 mt-5">
-        <BlogHeader
-          title={blog.title}
-          titleImage={blog.titleImage}
-          _createdAt={blog._createdAt}
-          category={blog.category}
-          author={blog.author}
-        />
-
-        <EngagementBar />
-
-        <div className="mt-8">
-          <PortableTextContent value={blog.content} />
+      <article>
+        <div className="w-full md:w-[80%] lg:w-[60%] mx-auto p-2 md:p-5 mt-5">
+          <BlogHeader
+            title={blog.title}
+            titleImage={blog.titleImage}
+            _createdAt={blog._createdAt}
+            category={blog.category}
+            author={blog.author}
+          />
+          <EngagementBar />
+          <div className="mt-8 border-b pb-12">
+            <PortableTextContent value={blog.content} />
+          </div>{" "}
+          {/* Related Posts Section */}
         </div>
-      </article>
+        <div className="w-full md:w-[90%] lg:w-[80%] mx-auto p-4 md:p-8">
+          {relatedPosts.length > 0 && (
+            <section className="mt-16 mb-10 pt-16">
+              <h2 className="text-3xl font-bold mb-10 text-center md:text-left">
+                You may want to read:
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                {relatedPosts.map((post: any) => (
+                  <Cards
+                    key={post._id}
+                    title={post.title}
+                    image={post.titleImage?.asset?.url || "/placeholder.jpg"}
+                    createdAt={post._createdAt}
+                    category={post.category}
+                    author={post.author}
+                    slug={post.slug.current}
+                    smallDescription={post.smallDescription}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      </article>{" "}
     </>
   );
 }
