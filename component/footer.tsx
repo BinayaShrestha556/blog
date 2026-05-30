@@ -37,6 +37,11 @@ export default function Footer() {
                 Terms & Conditions
               </a>
             </li>
+            <li>
+              <a href="/sitemap.xml" className="hover:underline transition">
+                Sitemap
+              </a>
+            </li>
           </ul>
         </div>
 

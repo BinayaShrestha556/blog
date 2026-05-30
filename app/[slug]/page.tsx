@@ -1,128 +1,26 @@
 // app/blog/[slug]/page.tsx
 import { client } from "@/lib/sanity";
-import { PortableText, PortableTextComponents } from "@portabletext/react";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import Image from "next/image";
-import { urlFor } from "@/lib/sanityUrl";
-import { FaRegComment, FaRegHeart } from "react-icons/fa";
-import { IoEyeOutline } from "react-icons/io5";
-import { RiShareForwardLine } from "react-icons/ri";
-import { MdOutlineBookmarkAdd } from "react-icons/md";
-import type { PortableTextBlock } from "@portabletext/types";
 import type { Metadata } from "next";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-
-// Types
-interface BlogPost {
-  title: string;
-  titleImage: {
-    asset: {
-      url: string;
-    };
-  };
-  content: PortableTextBlock[];
-  _createdAt: string;
-  category: string;
-  author: string;
-  smallDescription?: string;
-  slug: {
-    current: string;
-  };
-}
-
-interface ImageValue {
-  asset: {
-    _ref: string;
-    _type: string;
-  };
-  alt?: string;
-}
-
-interface PortableTextComponentProps {
-  children?: React.ReactNode;
-}
-
-interface ImageComponentProps {
-  value: ImageValue;
-}
+import { BlogHeader } from "@/component/blog/BlogHeader";
+import { EngagementBar } from "@/component/blog/EngagementBar";
+import { PortableTextContent } from "@/component/blog/PortableTextContent";
+import { BlogJsonLd } from "@/component/blog/BlogJsonLd";
+import { BlogPost } from "@/lib/types";
 
 const query = `*[_type == "blog" && slug.current == $slug][0]{
   title,
   titleImage{asset->{url}},
-  content,
+  content[]{
+    ...,
+    asset->{url}
+  },
   _createdAt,
+  _updatedAt,
   category,
   author,
   smallDescription,
   slug
 }`;
-
-const components: PortableTextComponents = {
-  types: {
-    image: ({ value }: ImageComponentProps) => (
-      <div className="relative my-6 aspect-square md:aspect-square w-full md:w-5/6 mx-auto">
-        <Image
-          src={urlFor(value).url()}
-          alt={value.alt || "Blog image"}
-          fill
-          className="rounded-2xl object-cover"
-        />
-      </div>
-    ),
-  },
-
-  marks: {
-    code: ({ children }) => (
-      <code className="bg-gray-300 text-gray-900 rounded px-1 py-0.5">
-        {children}
-      </code>
-    ),
-    strong: ({ children }) => <strong>{children}</strong>,
-  },
-
-  block: {
-    h1: ({ children }: PortableTextComponentProps) => (
-      <h1 className="text-3xl font-bold my-6 mt-14">{children}</h1>
-    ),
-    h2: ({ children }: PortableTextComponentProps) => (
-      <h2 className="text-2xl font-semibold my-5 mt-14">{children}</h2>
-    ),
-    h3: ({ children }: PortableTextComponentProps) => (
-      <h3 className="text-xl font-semibold my-4 mt-12">{children}</h3>
-    ),
-    normal: ({ children }: PortableTextComponentProps) => (
-      <p className="leading-relaxed">{children}</p>
-    ),
-
-    code: ({ children }: { children?: React.ReactNode }) => (
-      <SyntaxHighlighter
-        language="javascript"
-        style={oneDark}
-        className="rounded-xl my-6"
-      >
-        {children?.toString() || ""}
-      </SyntaxHighlighter>
-    ),
-  },
-
-  list: {
-    bullet: ({ children }: PortableTextComponentProps) => (
-      <ul className="list-disc pl-6 my-2">{children}</ul>
-    ),
-    number: ({ children }: PortableTextComponentProps) => (
-      <ol className="list-decimal pl-6 my-2">{children}</ol>
-    ),
-  },
-
-  listItem: {
-    bullet: ({ children }: PortableTextComponentProps) => (
-      <li className="mb-1">{children}</li>
-    ),
-    number: ({ children }: PortableTextComponentProps) => (
-      <li className="mb-1">{children}</li>
-    ),
-  },
-};
 
 export const revalidate = 86400; // revalidate every 24 hours
 
@@ -133,17 +31,17 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  
+
   // Cache metadata generation as well
   const blog = await client.fetch<BlogPost>(
-    query, 
+    query,
     { slug },
     {
-      next: { 
+      next: {
         revalidate: 86400, // Cache for 24 hours
-        tags: [`blog-${slug}`] // Tag for targeted revalidation
-      }
-    }
+        tags: [`blog-${slug}`], // Tag for targeted revalidation
+      },
+    },
   );
 
   if (!blog) {
@@ -154,7 +52,10 @@ export async function generateMetadata({
   }
 
   const publishedDate = new Date(blog._createdAt).toISOString();
-  const modifiedDate = new Date().toISOString();
+  const modifiedDate = blog._updatedAt
+    ? new Date(blog._updatedAt).toISOString()
+    : publishedDate;
+  const imageUrl = blog.titleImage?.asset?.url || "https://blog.binayashrestha0.com.np/og-image.jpg";
 
   return {
     title: `${blog.title} | Binaya Shrestha's Blog`,
@@ -203,7 +104,7 @@ export async function generateMetadata({
       locale: "en_US",
       images: [
         {
-          url: blog.titleImage.asset.url,
+          url: imageUrl,
           width: 1200,
           height: 630,
           alt: blog.title,
@@ -216,7 +117,7 @@ export async function generateMetadata({
       description:
         blog.smallDescription ||
         `Read ${blog.title} by ${blog.author} on Binaya Shrestha's blog.`,
-      images: [blog.titleImage.asset.url],
+      images: [imageUrl],
       creator: "@binayashrestha",
       site: "@binayashrestha",
     },
@@ -232,150 +133,38 @@ interface PageProps {
 
 export default async function BlogPage({ params }: PageProps) {
   const { slug } = await params;
-  
+
   // Use Next.js cache with 24-hour revalidation
   const blog = await client.fetch<BlogPost>(
-    query, 
+    query,
     { slug },
     {
-      next: { 
+      next: {
         revalidate: 86400, // Cache for 24 hours
-        tags: [`blog-${slug}`] // Tag for targeted revalidation
-      }
-    }
+        tags: [`blog-${slug}`], // Tag for targeted revalidation
+      },
+    },
   );
 
   if (!blog) return <p>Blog not found</p>;
 
-  const formattedDate = new Date(blog._createdAt).toISOString().split("T")[0];
-  const publishedDate = new Date(blog._createdAt).toISOString();
-  const modifiedDate = new Date().toISOString();
-
-  // Enhanced structured data for SEO
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: blog.title,
-    description:
-      blog.smallDescription || `Read ${blog.title} by ${blog.author}`,
-    image: {
-      "@type": "ImageObject",
-      url: blog.titleImage.asset.url,
-      width: 1200,
-      height: 630,
-    },
-    author: {
-      "@type": "Person",
-      name: blog.author,
-      url: "https://blog.binayashrestha0.com.np/about",
-    },
-    publisher: {
-      "@type": "Person",
-      name: "Binaya Shrestha",
-      url: "https://blog.binayashrestha0.com.np",
-    },
-    datePublished: publishedDate,
-    dateModified: modifiedDate,
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": `https://blog.binayashrestha0.com.np/${slug}`,
-    },
-    articleSection: blog.category,
-    keywords: [blog.category.toLowerCase(), blog.title.toLowerCase(), "technology", "web development", "programming"],
-    url: `https://blog.binayashrestha0.com.np/${slug}`,
-    wordCount: blog.content?.length || 0,
-    inLanguage: "en-US",
-    isPartOf: {
-      "@type": "Blog",
-      name: "Binaya Shrestha's Blog",
-      url: "https://blog.binayashrestha0.com.np",
-    },
-  };
-
-  // Breadcrumb structured data
-  const breadcrumbStructuredData = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: "https://blog.binayashrestha0.com.np",
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: blog.category,
-        item: `https://blog.binayashrestha0.com.np/category/${blog.category.toLowerCase()}`,
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
-        name: blog.title,
-        item: `https://blog.binayashrestha0.com.np/${slug}`,
-      },
-    ],
-  };
-
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbStructuredData) }}
-      />
+      <BlogJsonLd blog={blog} slug={slug} />
       <article className="w-full md:w-[80%] lg:w-[60%] mx-auto p-2 md:p-5 mt-5">
-        <div className="relative mb-10 w-full">
-          <Image
-            src={blog.titleImage.asset.url}
-            alt={blog.title}
-            width={1000}
-            height={1000}
-            className="rounded-3xl object-cover aspect-square md:aspect-[4/3] object-center"
-          />
+        <BlogHeader
+          title={blog.title}
+          titleImage={blog.titleImage}
+          _createdAt={blog._createdAt}
+          category={blog.category}
+          author={blog.author}
+        />
 
-          <div className="absolute z-40 py-5 top-0 left-0 bg-background rounded-br-3xl px-5 max-w-[80%] clip-shape">
-            <div className="corner-3xl absolute z-50 top-0 left-full" />
-            <div className="corner-3xl absolute z-50 top-full left-0" />
-            <span className="text-xs md:text-sm lg:text-base text-muted-foreground flex">
-              {formattedDate} |
-              <span className="capitalize">&nbsp; {blog.category}</span>{" "}
-              <span className="text-sm text-muted-foreground flex-1 text-end">
-                - {blog.author}{" "}
-              </span>
-            </span>
-            <h1 className="text-2xl font-bold md:text-3xl md:mt-2 lg:text-4xl">
-              {blog.title}
-            </h1>
-          </div>
+        <EngagementBar />
+
+        <div className="mt-8">
+          <PortableTextContent value={blog.content} />
         </div>
-
-        <div className="border-b w-full flex items-center justify-between px-5 pb-2">
-          <div className="flex gap-5 text-muted-foreground text-lg">
-            <span className="flex gap-1 items-center">
-              <FaRegComment />
-              <span className="text-sm">10</span>
-            </span>
-            <span className="flex gap-1 items-center">
-              <IoEyeOutline />
-              <span className="text-sm">100</span>
-            </span>
-            <span className="flex gap-1 items-center">
-              <FaRegHeart />
-              <span className="text-sm">5</span>
-            </span>
-          </div>
-          <div className="flex gap-5 text-muted-foreground text-lg">
-            <RiShareForwardLine />
-            <MdOutlineBookmarkAdd />
-          </div>
-        </div>
-
-        <PortableText value={blog.content} components={components} />
       </article>
     </>
   );

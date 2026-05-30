@@ -73,7 +73,9 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-
+  verification: {
+    google: "0OtlH-EUHs1HU9PlByn6wRBSTywwaCoF3LBvqYnMFRw",
+  },
 };
 
 export default function RootLayout({
@@ -100,7 +102,6 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
         <meta name="theme-color" content="#000000" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="google-site-verification" content="0OtlH-EUHs1HU9PlByn6wRBSTywwaCoF3LBvqYnMFRw" />
       </head>
       <body className={`${rubik.className} antialiased`}>
         <AuthProvider>
