@@ -14,30 +14,37 @@ export const BlogHeader: React.FC<BlogHeaderProps> = ({
   category,
   author,
 }) => {
-  const formattedDate = new Date(_createdAt).toISOString().split("T")[0];
+  const formattedDate = new Date(_createdAt).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 
   return (
-    <div className="relative w-full group h-full">
-      <Image
-        src={titleImage?.asset?.url || "/placeholder.jpg"}
-        alt={title}
-        width={1200}
-        height={1200}
-        className="rounded-3xl w-full h-full object-cover"
-      />
-
-      <div className="absolute z-40 py-5 top-0 left-0 bg-background rounded-br-3xl px-5 max-w-[80%] clip-shape">
-        <div className="corner-3xl absolute z-50 top-0 left-full" />
-        <div className="corner-3xl absolute z-50 top-full left-0" />
-        <span className="text-xs md:text-sm lg:text-base text-muted-foreground flex">
-          {formattedDate} |<span className="capitalize">&nbsp; {category}</span>{" "}
-          <span className="text-sm text-muted-foreground flex-1 text-end">
-            - {author}{" "}
-          </span>
-        </span>
-        <h1 className="text-2xl font-bold md:text-3xl md:mt-2 lg:text-4xl">
+    <div className="w-full flex flex-col gap-4">
+      {/* Heading */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2 text-muted-foreground text-xs md:text-sm">
+          <span>{formattedDate}</span>
+          <span>·</span>
+          <span className="capitalize">{category}</span>
+          <span className="ml-auto">by {author}</span>
+        </div>
+        <h1 className="text-2xl font-bold leading-tight md:text-3xl lg:text-4xl">
           {title}
         </h1>
+      </div>
+
+      {/* Image */}
+      <div className="relative w-full  overflow-hidden rounded-3xl">
+        <Image
+          src={titleImage?.asset?.url || "/placeholder.jpg"}
+          alt={title}
+          height={1200}
+          width={1200}
+          priority
+          className="object-cover h-full w-full object-center"
+        />
       </div>
     </div>
   );

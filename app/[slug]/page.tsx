@@ -184,7 +184,7 @@ export default async function BlogPage({ params }: PageProps) {
             category={blog.category}
             author={blog.author}
           />
-          <EngagementBar />
+          {/* <EngagementBar /> */}
           <div className="mt-8 border-b pb-12">
             <PortableTextContent value={blog.content} />
           </div>{" "}
