@@ -20,6 +20,7 @@ const query = `*[_type == "blog" && slug.current == $slug][0]{
   category,
   author,
   smallDescription,
+  keywords,
   slug
 }`;
 
@@ -66,6 +67,7 @@ export async function generateMetadata({
       blog.smallDescription ||
       `Read ${blog.title} by ${blog.author} on Binaya Shrestha's blog. Discover insights about ${blog.category.toLowerCase()} and more.`,
     keywords: [
+      ...(blog.keywords || []),
       blog.category.toLowerCase(),
       blog.title.toLowerCase(),
       "blog",
@@ -102,7 +104,11 @@ export async function generateMetadata({
       modifiedTime: modifiedDate,
       authors: [blog.author],
       section: blog.category,
-      tags: [blog.category.toLowerCase(), blog.title.toLowerCase()],
+      tags: [
+        ...(blog.keywords || []),
+        blog.category.toLowerCase(),
+        blog.title.toLowerCase(),
+      ],
       siteName: "Binaya Shrestha's Blog",
       locale: "en_US",
       images: [

@@ -14,6 +14,7 @@ export interface BlogPost {
   category: string;
   author: string;
   smallDescription?: string;
+  keywords?: string[];
   slug: {
     current: string;
   };
