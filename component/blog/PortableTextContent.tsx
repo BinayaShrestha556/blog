@@ -43,6 +43,60 @@ const components: PortableTextComponents = {
         </div>
       );
     },
+    richTable: ({ value }: any) => {
+      const { rows, columnHeaders, hasColumnTitles, hasRowTitles } = value;
+      return (
+        <div className="overflow-x-auto my-8 border border-gray-200 rounded-lg shadow-sm">
+          <table className="min-w-full divide-y divide-gray-200">
+            {hasColumnTitles && columnHeaders && columnHeaders.length > 0 && (
+              <thead className="bg-gray-100 uppercase tracking-wider">
+                <tr>
+                  {columnHeaders.map((header: any, index: number) => (
+                    <th
+                      key={header._key || index}
+                      className="px-6 py-3 text-left text-xs font-bold text-gray-700 border-r border-gray-200 last:border-r-0"
+                    >
+                      {header.title}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+            )}
+            <tbody className="bg-white divide-y divide-gray-200">
+              {rows?.map((row: any, rowIndex: number) => (
+                <tr key={row._key || rowIndex} className="hover:bg-gray-50 transition-colors">
+                  {row.cells?.map((cell: any, cellIndex: number) => {
+                    const isHeader = hasRowTitles && cellIndex === 0;
+                    return isHeader ? (
+                      <th
+                        key={cell._key || cellIndex}
+                        scope="row"
+                        className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 bg-gray-50 border-r border-gray-200 last:border-r-0 text-left"
+                      >
+                        <PortableText
+                          value={cell.content}
+                          components={components}
+                        />
+                      </th>
+                    ) : (
+                      <td
+                        key={cell._key || cellIndex}
+                        className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 border-r border-gray-200 last:border-r-0"
+                      >
+                        <PortableText
+                          value={cell.content}
+                          components={components}
+                        />
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    },
   },
 
   marks: {
