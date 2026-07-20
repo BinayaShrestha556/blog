@@ -145,7 +145,7 @@ export default async function BlogPage({ params }: PageProps) {
       },
     },
   );
-
+  console.log(blog);
   if (!blog) return <p>Blog not found</p>;
 
   // Fetch related posts (latest 4 posts excluding current one)
@@ -168,6 +168,7 @@ export default async function BlogPage({ params }: PageProps) {
       },
     },
   );
+  console.log("Related Posts:", relatedPosts);
 
   return (
     <>
